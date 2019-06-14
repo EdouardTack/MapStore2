@@ -15,7 +15,7 @@ const { MAP_INFO_LOADED } = require('../actions/config');
 const {isNil, find} = require('lodash');
 const {
     SAVE_DETAILS, SAVE_RESOURCE_DETAILS, MAPS_GET_MAP_RESOURCES_BY_CATEGORY,
-    DELETE_MAP, OPEN_DETAILS_PANEL, MAPS_LOAD_MAP,
+    DELETE_MAP, OPEN_DETAILS_PANEL, MAPS_LOAD_MAP, MAPS_LIST_LOADED,
     CLOSE_DETAILS_PANEL, NO_DETAILS_AVAILABLE, SAVE_MAP_RESOURCE,
     setDetailsChanged, updateDetails, mapsLoading, mapsLoaded,
     mapDeleting, toggleDetailsEditability, mapDeleted, loadError,
@@ -300,6 +300,37 @@ const storeDetailsInfoEpic = (action$, store) =>
                     );
             });
     });
+
+/**
+ * Add map title to title markup
+ */
+const addMapTitleEpic = (action$) =>
+    action$.ofType(MAP_INFO_LOADED)
+    .switchMap((action) => {
+        const mapTitle = action.info.name;
+        const title = window.parent.document.title;
+        const titleWords = title.split('-');
+
+        window.parent.document.title = titleWords[0].trim() + ' - ' + mapTitle;
+
+        return Rx.Observable.empty();
+    });
+
+/**
+ * Set default title
+ */
+const defaultTitleEpic = (action$) =>
+    action$.ofType(MAPS_LIST_LOADED)
+    .switchMap(() => {
+        alert('test');
+        const title = window.parent.document.title;
+        const titleWords = title.split('-');
+
+        window.parent.document.title = titleWords[0].trim();
+
+        return Rx.Observable.empty();
+    });
+
 // UPDATE MAP_RESOURCE FLOW
 const updateMapResource = (resource) => Persistence.updateResource(resource)
         .switchMap(() =>
@@ -357,5 +388,7 @@ module.exports = {
     setDetailsChangedEpic,
     fetchDetailsFromResourceEpic,
     saveResourceDetailsEpic,
+    addMapTitleEpic,
+    defaultTitleEpic,
     mapSaveMapResourceEpic
 };
